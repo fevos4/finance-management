@@ -8,7 +8,6 @@ import CourseBreakdownTable from '../../Components/Dashboard/CourseBreakdownTabl
 import AdditionalFee from '../../Components/Dashboard/AdditionalFee';
 
 const DashboardPage = () => {
-  // Sample data - in a real application, this would come from an API or state management
   const studentData = {
     studentName: "Feven Tesfaye",
     studentId: "Id number 2025",
@@ -81,26 +80,29 @@ const DashboardPage = () => {
         {/* Additional Fees Section */}
         <AdditionalFee fees={additionalFee} />
       </div>
-      <div className='flex justify-center items-center mt-8 gap-16'>
-        <button 
-         type="submit"
-         className="w-full flex flex-row items-center justify-center gap-4 shadow-sm bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-6 rounded-lg transition-colors duration-200"
-            >
-              Make Payment <FaArrowRight />
-         </button>
-         <button 
-         type="submit"
-         className="w-full flex flex-row items-center justify-center gap-4 shadow-sm border hover:bg-gray-300 text-black py-2 px-6 rounded-lg transition-colors duration-200"
-            >
-              <FaDownload /> Download
-         </button>
-         <button 
-         type="submit"
-         className="w-full flex flex-row items-center justify-center gap-4 border hover:bg-gray-300 text-black py-2 px-6 rounded-lg transition-colors duration-200"
-            >
-              <GrView /> View Payment History
-         </button>
-      </div>
+      <div className="flex flex-col md:flex-row justify-center items-center mt-8 gap-4 md:gap-16">
+  <button 
+    type="submit"
+    className="w-full md:w-auto flex flex-row items-center justify-center gap-4 shadow-sm bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-6 rounded-lg transition-colors duration-200"
+  >
+    Make Payment <FaArrowRight />
+  </button>
+
+  <button 
+    type="submit"
+    className="w-full md:w-auto flex flex-row items-center justify-center gap-4 shadow-sm border hover:bg-gray-300 text-black py-2 px-6 rounded-lg transition-colors duration-200"
+  >
+    <FaDownload /> Download
+  </button>
+
+  <button 
+    type="submit"
+    className="w-full md:w-auto flex flex-row items-center justify-center gap-4 border hover:bg-gray-300 text-black py-2 px-6 rounded-lg transition-colors duration-200"
+  >
+    <GrView /> View Payment History
+  </button>
+</div>
+
     </DashboardLayout>
   );
 };

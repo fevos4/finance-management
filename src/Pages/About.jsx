@@ -24,7 +24,7 @@ const About = () => {
     ];
 
     return (
-        <div className="py-16 px-4 bg-gray-50">
+        <div className="lg:py-16 px-4 bg-gray-50">
             <div className="max-w-6xl mx-auto">
                 {/* Features Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">

@@ -14,7 +14,7 @@ const Hero = () => {
     return (
        <div>
         <Navbar />
-         <div className="h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
+         <div className="lg:min-h-screen bg-gray-50 flex items-start lg:items-center justify-center px-4 py-8">
             <div className="max-w-6xl w-full h-full flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
                 {/* Left Content */}
                 <div className="flex-1 max-w-lg">
