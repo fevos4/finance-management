@@ -79,7 +79,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           })}
           <button
             onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 w-full mt-4"
+            className="text-black hover:text-red-400 px-4 py-2 rounded-lg transition-colors duration-200 w-full mt-4"
           >
             Logout
           </button>
