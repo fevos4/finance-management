@@ -1,39 +1,14 @@
-import React from 'react';
+import React from "react";
 
 const CourseBreakdownTable = ({ courses }) => {
-  const defaultCourses = [
-    {
-      courseCode: "CSE301",
-      courseTitle: "Advanced Programming",
-      creditHours: 3,
-      cost: "1200.00"
-    },
-    {
-      courseCode: "CSE302",
-      courseTitle: "Data Structures",
-      creditHours: 4,
-      cost: "1600.00"
-    },
-    {
-      courseCode: "CSE303",
-      courseTitle: "Database Systems",
-      creditHours: 3,
-      cost: "1200.00"
-    },
-    {
-      courseCode: "CSE304",
-      courseTitle: "Software Engineering",
-      creditHours: 3,
-      cost: "1200.00"
-    }
-  ];
-
   const courseData = courses || defaultCourses;
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Course Breakdown</h2>
-      
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        Course Breakdown
+      </h2>
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">

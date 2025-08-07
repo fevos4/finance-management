@@ -1,26 +1,30 @@
-// App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Hero from "./Pages/Hero";
 import About from "./Pages/About";
 import Footer from "./Pages/Footer";
-import Dashboard from "./Components/Dashboard/Dashboard"; // Make sure this page exists
+import Dashboard from "./Components/Dashboard/Dashboard";
+import { AuthProvider } from "./context/AuthContext";
+import MyCoursesPage from "./Pages/MyCourses";
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <Hero />
-              <About />
-              <Footer />
-            </>
-          }
-        />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <Hero />
+                <About />
+                <Footer />
+              </>
+            }
+          />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/courses" element={<MyCoursesPage />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
