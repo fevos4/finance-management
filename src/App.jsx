@@ -5,6 +5,7 @@ import Footer from "./Pages/Footer";
 import Dashboard from "./Components/Dashboard/Dashboard";
 import { AuthProvider } from "./context/AuthContext";
 import MyCoursesPage from "./Pages/MyCourses";
+import ProtectedRoute from "./Components/ProtectedRoute";
 
 export default function App() {
   return (
@@ -21,8 +22,22 @@ export default function App() {
               </>
             }
           />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/courses" element={<MyCoursesPage />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/courses" 
+            element={
+              <ProtectedRoute>
+                <MyCoursesPage />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </Router>
     </AuthProvider>

@@ -1,4 +1,4 @@
-import { MdDashboard, MdSchool, MdPayment } from "react-icons/md";
+import { MdDashboard, MdSchool } from "react-icons/md";
 import logo from "../../assets/logo.png";
 import userImage from "../../assets/user.jpg";
 import { useAuth } from "../../context/AuthContext";
@@ -27,7 +27,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/", { replace: true }); // use replace to avoid back navigation to protected routes
   };
 
   return (
@@ -79,7 +79,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           })}
           <button
             onClick={handleLogout}
-            className="text-black hover:text-red-400 px-4 py-2 rounded-lg transition-colors duration-200 w-full mt-4"
+            className="text-black hover:text-red-400 px-4 py-2 rounded-lg transition-colors duration-200 w-full mt-4 text-left"
           >
             Logout
           </button>
