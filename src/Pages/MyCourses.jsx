@@ -1,10 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../Components/Layouts/DashboardLayouts";
 import CourseBreakdownTable from "../Components/Dashboard/CourseBreakdownTable";
+import { authUtils } from "../utils/auth";
 
 const MyCoursesPage = () => {
   const { studentData, isAuthenticated } = useAuth();
+  const [coursesData, setCoursesData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCoursesData = async () => {
+      if (studentData?.slipNumber) {
+        try {
+          const response = await fetch(`/dashboard/${studentData.slipNumber}`, {
+            headers: authUtils.getAuthHeaders(),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setCoursesData(data.courses);
+          }
+        } catch (error) {
+          console.error('Failed to fetch courses data:', error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    fetchCoursesData();
+  }, [studentData]);
 
   if (!isAuthenticated) {
     return (
@@ -18,7 +46,7 @@ const MyCoursesPage = () => {
     );
   }
 
-  if (!studentData) {
+  if (loading || !coursesData) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -31,7 +59,7 @@ const MyCoursesPage = () => {
     );
   }
 
-  const transformedCoursesData = studentData.courses.map((course) => ({
+  const transformedCoursesData = coursesData.map((course) => ({
     courseCode: course.code,
     courseTitle: course.title,
     creditHours: course.creditHour,

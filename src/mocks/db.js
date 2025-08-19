@@ -31,8 +31,30 @@ export const users = [
       { description: 'Graduation Fee', amount: 100 }
     ],
     paymentHistory: [
-      { id: 1, receiptNumber: 'R1001', amount: 500, date: '2024-01-10' },
-      { id: 2, receiptNumber: 'R1002', amount: 300, date: '2024-03-15' },
+      { 
+        id: 1, 
+        receiptNumber: 'R1001', 
+        amount: 500, 
+        date: '2024-01-10',
+        paymentDate: '2024-01-10T10:30:00Z',
+        paymentMethod: 'Credit Card',
+        paymentType: 'Tuition',
+        status: 'completed',
+        description: 'Credit Card - Tuition',
+        transactionId: 'TXN1001'
+      },
+      { 
+        id: 2, 
+        receiptNumber: 'R1002', 
+        amount: 300, 
+        date: '2024-03-15',
+        paymentDate: '2024-03-15T14:20:00Z',
+        paymentMethod: 'Bank Transfer',
+        paymentType: 'Tuition',
+        status: 'completed',
+        description: 'Bank Transfer - Tuition',
+        transactionId: 'TXN1002'
+      },
     ],
     paymentStatus: {
   totalDue: 1200,
@@ -66,8 +88,30 @@ export const users = [
       { description: 'Student Union Fee', amount: 30 }
     ],
     paymentHistory: [
-      { id: 1, receiptNumber: 'R1001', amount: 500, date: '2024-01-10' },
-      { id: 2, receiptNumber: 'R1002', amount: 300, date: '2024-03-15' },
+      { 
+        id: 1, 
+        receiptNumber: 'R1001', 
+        amount: 500, 
+        date: '2024-01-10',
+        paymentDate: '2024-01-10T10:30:00Z',
+        paymentMethod: 'Credit Card',
+        paymentType: 'Tuition',
+        status: 'completed',
+        description: 'Credit Card - Tuition',
+        transactionId: 'TXN1001'
+      },
+      { 
+        id: 2, 
+        receiptNumber: 'R1002', 
+        amount: 300, 
+        date: '2024-03-15',
+        paymentDate: '2024-03-15T14:20:00Z',
+        paymentMethod: 'Bank Transfer',
+        paymentType: 'Tuition',
+        status: 'completed',
+        description: 'Bank Transfer - Tuition',
+        transactionId: 'TXN1002'
+      },
     ],
     paymentStatus: {
   totalDue: 1200,
@@ -77,5 +121,5 @@ export const users = [
     }
   
   },
-  // Add more users here...
+ 
 ]

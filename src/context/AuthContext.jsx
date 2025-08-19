@@ -78,9 +78,13 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         const data = await response.json();
+        // Update the student data with the latest dashboard information
         setStudentData(prevData => ({
           ...prevData,
-          ...data
+          courses: data.courses,
+          additionalFees: data.additionalFees,
+          paymentSummary: data.paymentSummary,
+          studentInfo: data.studentInfo
         }));
       }
     } catch (error) {

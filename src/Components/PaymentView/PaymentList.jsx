@@ -47,8 +47,8 @@ const PaymentList = ({
                       {payment.description || "No Description"}
                     </h4>
                     <p className="text-sm text-gray-600">
-                      {payment.paymentDate
-                        ? new Date(payment.paymentDate).toLocaleDateString()
+                      {payment.paymentDate || payment.date
+                        ? new Date(payment.paymentDate || payment.date).toLocaleDateString()
                         : "No Date"}{" "}
                       • Receipt: {payment.receiptNumber || "N/A"}
                     </p>

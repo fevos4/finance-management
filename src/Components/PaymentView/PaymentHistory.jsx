@@ -57,7 +57,25 @@ const PaymentHistory = ({ isOpen, onClose }) => {
         const data = await response.json();
         setSelectedReceipt(data);
       } else {
-        throw new Error('Failed to fetch receipt');
+        // If API fails, create receipt from payment history data
+        const payment = paymentHistory.find(p => p.id === paymentId);
+        if (payment) {
+          setSelectedReceipt({
+            payment: {
+              ...payment,
+              paymentDate: payment.date || payment.paymentDate || new Date().toISOString(),
+              transactionId: payment.id || payment.transactionId || `TXN${payment.id}`,
+              items: [
+                {
+                  description: payment.description || 'Tuition Payment',
+                  amount: payment.amount
+                }
+              ]
+            }
+          });
+        } else {
+          throw new Error('Payment not found');
+        }
       }
     } catch (error) {
       console.error("Error fetching receipt:", error);
@@ -68,13 +86,18 @@ const PaymentHistory = ({ isOpen, onClose }) => {
   const handleDownloadReceipt = (payment) => {
     const receiptContent = generateReceiptContent(
       payment,
-      studentData.studentInfo
+      studentData?.studentInfo || {
+        name: 'Student Name',
+        id: 'N/A',
+        program: 'N/A',
+        semester: 'N/A'
+      }
     );
     const blob = new Blob([receiptContent], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `receipt-${payment.receiptNumber}.txt`;
+    a.download = `receipt-${payment.receiptNumber || payment.id}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

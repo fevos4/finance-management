@@ -52,7 +52,17 @@ export const handlers = [
       )
       if (payment) {
         return HttpResponse.json({
-          ...payment,
+          payment: {
+            ...payment,
+            paymentDate: payment.paymentDate || payment.date || new Date().toISOString(),
+            transactionId: payment.transactionId || `TXN${payment.id}`,
+            items: [
+              {
+                description: payment.description || 'Tuition Payment',
+                amount: payment.amount
+              }
+            ]
+          },
           studentInfo: user.studentInfo,
         })
       }
@@ -79,10 +89,13 @@ export const handlers = [
       id: Date.now(),
       receiptNumber: `R${Date.now()}`,
       amount: parseFloat(amount),
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString(),
+      paymentDate: new Date().toISOString(),
       paymentMethod: paymentMethod || 'Online',
       paymentType: paymentType || 'Tuition',
-      status: 'completed'
+      status: 'completed',
+      description: `${paymentMethod} - ${paymentType}`,
+      transactionId: `TXN${Date.now()}`
     }
 
     // Add to user's payment history
