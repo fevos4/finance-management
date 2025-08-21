@@ -1,11 +1,10 @@
 // src/mocks/handlers.js
 
-import { http, HttpResponse } from 'msw'
+import { http, HttpResponse, passthrough } from 'msw'
 import { users } from './db'
-import { v4 as uuidv4 } from 'uuid'
 
 export const handlers = [
-  // Login handler (existing)
+  // Login handler
   http.post('/login', async ({ request }) => {
     const { slipNumber, idNumber } = await request.json()
 
@@ -34,7 +33,6 @@ export const handlers = [
       return new HttpResponse(null, { status: 404 })
     }
 
-    // Return mocked payment history and status
     return HttpResponse.json({
       paymentHistory: user.paymentHistory || [],
       paymentStatus: user.paymentStatus || null,
@@ -45,7 +43,6 @@ export const handlers = [
   http.get('/payment-receipt/:paymentId', (req) => {
     const { paymentId } = req.params
 
-    // Find the user who has this payment
     for (const user of users) {
       const payment = (user.paymentHistory || []).find(
         (p) => String(p.id) === paymentId
@@ -81,10 +78,8 @@ export const handlers = [
       return new HttpResponse(null, { status: 404 })
     }
 
-    // Simulate payment processing delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000)) // simulate delay
 
-    // Generate new payment record
     const newPayment = {
       id: Date.now(),
       receiptNumber: `R${Date.now()}`,
@@ -98,13 +93,11 @@ export const handlers = [
       transactionId: `TXN${Date.now()}`
     }
 
-    // Add to user's payment history
     if (!user.paymentHistory) {
       user.paymentHistory = []
     }
     user.paymentHistory.push(newPayment)
 
-    // Update payment status
     const totalPaid = user.paymentHistory.reduce((sum, payment) => sum + payment.amount, 0)
     const totalCourseCost = user.courses.reduce((sum, course) => sum + course.cost, 0)
     const totalAdditionalFees = user.additionalFees.reduce((sum, fee) => sum + fee.amount, 0)
@@ -126,7 +119,7 @@ export const handlers = [
     })
   }),
 
-  // Get student dashboard data
+  // Dashboard data handler
   http.get('/dashboard/:slipNumber', (req) => {
     const { slipNumber } = req.params
     const user = users.find((u) => u.slipNumber === slipNumber)
@@ -135,7 +128,6 @@ export const handlers = [
       return new HttpResponse(null, { status: 404 })
     }
 
-    // Calculate totals
     const totalCourseCost = user.courses.reduce((sum, course) => sum + course.cost, 0)
     const totalAdditionalFees = user.additionalFees.reduce((sum, fee) => sum + fee.amount, 0)
     const totalDue = totalCourseCost + totalAdditionalFees
@@ -156,8 +148,7 @@ export const handlers = [
   }),
 
   // Logout handler
-  http.post('/logout', async ({ request }) => {
-    // In a real app, this would invalidate the token on the server
+  http.post('/logout', async () => {
     return HttpResponse.json({
       success: true,
       message: 'Logged out successfully'
@@ -183,5 +174,10 @@ export const handlers = [
     }
 
     return new HttpResponse(null, { status: 401 })
+  }),
+
+  // ✅ Passthrough root requests so MSW doesn't warn
+  http.get('/', () => {
+    return passthrough()
   })
 ]

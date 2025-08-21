@@ -6,6 +6,7 @@ import Dashboard from "./Components/Dashboard/Dashboard";
 import { AuthProvider } from "./context/AuthContext";
 import MyCoursesPage from "./Pages/MyCourses";
 import ProtectedRoute from "./Components/ProtectedRoute";
+import ChatBot from "./Pages/ChatBot";
 
 export default function App() {
   return (
@@ -19,24 +20,25 @@ export default function App() {
                 <Hero />
                 <About />
                 <Footer />
+                <ChatBot />
               </>
             }
           />
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/courses" 
+          <Route
+            path="/courses"
             element={
               <ProtectedRoute>
                 <MyCoursesPage />
               </ProtectedRoute>
-            } 
+            }
           />
         </Routes>
       </Router>
