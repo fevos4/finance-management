@@ -1,13 +1,13 @@
 import { MdDashboard, MdSchool } from "react-icons/md";
 import logo from "../../assets/logo.png";
-import userImage from "../../assets/user.jpg";
+import defaultUserImage from "../../assets/user.jpg"; // local default fallback
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
+  const { logout, studentData } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
-  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const navigationItems = [
@@ -27,7 +27,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   const handleLogout = () => {
     logout();
-    navigate("/", { replace: true }); // use replace to avoid back navigation to protected routes
+    navigate("/", { replace: true });
   };
 
   return (
@@ -36,31 +36,35 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         isOpen ? "translate-x-0" : "-translate-x-full"
       } md:translate-x-0`}
     >
-      <div className="p-6 border-b border-gray-100 items-center justify-center flex">
+      {/* Logo */}
+      <div className="p-6 border-b border-gray-100 flex justify-center items-center">
         <img src={logo} alt="UniPay Logo" className="h-12 scale-150 w-auto" />
       </div>
 
+      {/* User Info */}
       <div className="p-6">
         <div className="flex items-center space-x-3">
           <img
-            src={userImage}
-            alt="Feven Tesfaye"
+            src={studentData?.studentInfo?.profileImage || defaultUserImage}
+            alt={studentData?.studentInfo?.name || "User"}
             className="w-12 h-12 rounded-full object-cover"
           />
           <div>
             <h3 className="font-semibold text-gray-900 text-sm">
-              Feven Tesfaye
+              {studentData?.studentInfo?.name || "Guest User"}
             </h3>
-            <p className="text-gray-500 text-xs">Id number 2025</p>
+            <p className="text-gray-500 text-xs">
+              ID number {studentData?.studentInfo?.id || "N/A"}
+            </p>
           </div>
         </div>
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           {navigationItems.map((item) => {
             const isActive = currentPath.startsWith(item.href);
-
             return (
               <li key={item.id}>
                 <a
@@ -77,14 +81,18 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               </li>
             );
           })}
-          <button
-            onClick={handleLogout}
-            className="text-black hover:text-red-400 px-4 py-2 rounded-lg transition-colors duration-200 w-full mt-4 text-left"
-          >
-            Logout
-          </button>
         </ul>
       </nav>
+
+      {/* Logout Button */}
+      <div className="p-4 border-t border-gray-100">
+        <button
+          onClick={handleLogout}
+          className="w-full text-left text-black hover:text-red-400 px-4 py-2 rounded-lg transition-colors duration-200"
+        >
+          Logout
+        </button>
+      </div>
     </div>
   );
 };

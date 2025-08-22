@@ -12,89 +12,63 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [studentData, setStudentData] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Initialize auth on app load
   useEffect(() => {
-    // On app load, restore auth state from localStorage and validate token
-    const initializeAuth = async () => {
-      const token = authUtils.getToken();
-      const data = authUtils.getStudentData();
+    const authData = authUtils.getAuthData();
 
-      if (token && data) {
-        // Validate token with server
-        const isValid = await authUtils.validateToken();
-        if (isValid) {
-          setIsAuthenticated(true);
-          setStudentData(data);
-        } else {
-          // Token is invalid, clear local storage
-          authUtils.logout();
-          setIsAuthenticated(false);
-          setStudentData(null);
-        }
-      }
+    if (authData?.token && authData?.studentData) {
+      setIsAuthenticated(true);
+      setStudentData(authData.studentData);
+    }
 
-      setLoading(false);
-    };
-
-    initializeAuth();
+    setLoading(false);
   }, []);
 
   const login = async (slipNumber, idNumber) => {
-    try {
-      const data = await authUtils.login(slipNumber, idNumber);
-      setIsAuthenticated(true);
-      setStudentData(data);
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await authUtils.login(slipNumber, idNumber);
+    setStudentData(data);
+    setIsAuthenticated(true);
+    return data;
   };
 
-  const logout = async () => {
-    try {
-      // Call server logout endpoint
-      await authUtils.logoutFromServer();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      // Always clear local state
-      setIsAuthenticated(false);
-      setStudentData(null);
-    }
+  const logout = () => {
+    authUtils.clearAuthData();
+    setStudentData(null);
+    setIsAuthenticated(false);
   };
 
+  // ✅ Allow refreshing student data after actions (like payments)
   const refreshStudentData = async () => {
-    if (!studentData?.slipNumber) {
-      return;
-    }
+    const authData = authUtils.getAuthData();
+    if (authData?.studentData?.slipNumber) {
+      try {
+        const response = await fetch(
+          `/dashboard/${authData.studentData.slipNumber}`,
+          { headers: authUtils.getAuthHeaders() }
+        );
 
-    try {
-      const response = await fetch(`/dashboard/${studentData.slipNumber}`, {
-        headers: authUtils.getAuthHeaders(),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Update the student data with the latest dashboard information
-        setStudentData(prevData => ({
-          ...prevData,
-          courses: data.courses,
-          additionalFees: data.additionalFees,
-          paymentSummary: data.paymentSummary,
-          studentInfo: data.studentInfo
-        }));
+        if (response.ok) {
+          const data = await response.json();
+          setStudentData({
+            ...authData.studentData,
+            studentInfo: data.studentInfo,
+          });
+        } else {
+          console.error("Failed to refresh student data:", response.status);
+        }
+      } catch (error) {
+        console.error("Error refreshing student data:", error);
       }
-    } catch (error) {
-      console.error('Failed to refresh student data:', error);
     }
   };
 
   const value = {
-    isAuthenticated,
     studentData,
+    isAuthenticated,
     login,
     logout,
     loading,

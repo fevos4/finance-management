@@ -13,7 +13,13 @@ import PaymentHistory from "../../Components/PaymentView/PaymentHistory";
 import { authUtils } from "../../utils/auth";
 
 const DashboardPage = () => {
-  const { studentData, isAuthenticated, loading: authLoading, refreshStudentData } = useAuth();
+  // ✅ Destructure the new refreshStudentData function
+  const {
+    studentData,
+    isAuthenticated,
+    loading: authLoading,
+    refreshStudentData,
+  } = useAuth();
   const navigate = useNavigate();
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -35,21 +41,90 @@ const DashboardPage = () => {
       if (studentData?.slipNumber) {
         try {
           const response = await fetch(`/dashboard/${studentData.slipNumber}`, {
-            headers: authUtils.getAuthHeaders(),
+            headers: authUtils.getAuthHeaders(), // ✅ Use the new headers function
           });
 
           if (response.ok) {
             const data = await response.json();
             setDashboardData(data);
+          } else {
+            // Handle cases where the API fails (e.g., token expired)
+            console.error(
+              "Failed to fetch dashboard data:",
+              response.statusText
+            );
           }
         } catch (error) {
-          console.error('Failed to fetch dashboard data:', error);
+          console.error("Failed to fetch dashboard data:", error);
         }
       }
     };
 
     fetchDashboardData();
-  }, [studentData]);
+  }, [studentData]); // Dependency remains on studentData
+
+  const handlePaymentSubmit = async () => {
+    if (!paymentMethod) return;
+    setLoading(true);
+
+    try {
+      const amount =
+        paymentMethod === "monthly" ? monthlyAmount : remainingBalance;
+      const method =
+        paymentMethod === "monthly" ? "Monthly Payment" : "Full Payment";
+
+      const response = await fetch("/process-payment", {
+        method: "POST",
+        headers: authUtils.getAuthHeaders(), // ✅ Use the new headers function
+        body: JSON.stringify({
+          slipNumber: studentData.slipNumber,
+          amount: amount,
+          paymentMethod: method,
+          paymentType: "Tuition",
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+
+        alert(
+          `Payment processed successfully!\n\nAmount: $${amount.toFixed(
+            2
+          )}\nMethod: ${method}\nReceipt Number: ${
+            result.payment.receiptNumber
+          }\n\nThank you for your payment!`
+        );
+
+        // ✅ Refresh student data in the context to update localStorage reference
+        refreshStudentData();
+
+        // ✅ Re-fetch dashboard data to get the latest payment info
+        const dashboardResponse = await fetch(
+          `/dashboard/${studentData.slipNumber}`,
+          {
+            headers: authUtils.getAuthHeaders(),
+          }
+        );
+
+        if (dashboardResponse.ok) {
+          const updatedData = await dashboardResponse.json();
+          setDashboardData(updatedData);
+        }
+
+        setShowPaymentModal(false);
+        setPaymentMethod("");
+      } else {
+        throw new Error("Payment processing failed");
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("Payment processing failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- Render Logic (No changes below this line, but included for completeness) ---
 
   if (authLoading) {
     return (
@@ -108,58 +183,6 @@ const DashboardPage = () => {
 
   const handleMakePayment = () => {
     setShowPaymentModal(true);
-  };
-
-  const handlePaymentSubmit = async () => {
-    if (!paymentMethod) return;
-    setLoading(true);
-
-    try {
-      const amount = paymentMethod === "monthly" ? monthlyAmount : remainingBalance;
-      const method = paymentMethod === "monthly" ? "Monthly Payment" : "Full Payment";
-
-      const response = await fetch('/process-payment', {
-        method: 'POST',
-        headers: authUtils.getAuthHeaders(),
-        body: JSON.stringify({
-          slipNumber: studentData.slipNumber,
-          amount: amount,
-          paymentMethod: method,
-          paymentType: 'Tuition'
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        
-        alert(
-          `Payment processed successfully!\n\nAmount: $${amount}\nMethod: ${method}\nReceipt Number: ${result.payment.receiptNumber}\n\nThank you for your payment!`
-        );
-
-        // Refresh dashboard data
-        await refreshStudentData();
-        
-        // Refresh local dashboard data
-        const dashboardResponse = await fetch(`/dashboard/${studentData.slipNumber}`, {
-          headers: authUtils.getAuthHeaders(),
-        });
-        
-        if (dashboardResponse.ok) {
-          const updatedData = await dashboardResponse.json();
-          setDashboardData(updatedData);
-        }
-
-        setShowPaymentModal(false);
-        setPaymentMethod("");
-      } else {
-        throw new Error('Payment processing failed');
-      }
-    } catch (error) {
-      console.error('Payment error:', error);
-      alert("Payment processing failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (

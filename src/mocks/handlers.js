@@ -1,10 +1,9 @@
 // src/mocks/handlers.js
-
 import { http, HttpResponse, passthrough } from 'msw'
 import { users } from './db'
 
 export const handlers = [
-  // Login handler
+  // 🔹 Login handler
   http.post('/login', async ({ request }) => {
     const { slipNumber, idNumber } = await request.json()
 
@@ -12,21 +11,23 @@ export const handlers = [
       (u) => u.slipNumber === slipNumber && u.idNumber === idNumber
     )
 
-    if (user) {
-      return HttpResponse.json({
-        token: user.token,
-        studentInfo: user.studentInfo,
-        courses: user.courses,
-        additionalFees: user.additionalFees,
-      })
+    if (!user) {
+      return new HttpResponse(null, { status: 401 })
     }
 
-    return new HttpResponse(null, { status: 401 })
+    return HttpResponse.json({
+      token: user.token,
+      studentInfo: user.studentInfo,
+      courses: user.courses || [],
+      additionalFees: user.additionalFees || [],
+      paymentHistory: user.paymentHistory || [],
+      paymentStatus: user.paymentStatus || null,
+    })
   }),
 
-  // Payment history handler
-  http.get('/payment-history/:slipNumber', (req) => {
-    const { slipNumber } = req.params
+  // 🔹 Payment history handler
+  http.get('/payment-history/:slipNumber', ({ params }) => {
+    const { slipNumber } = params
     const user = users.find((u) => u.slipNumber === slipNumber)
 
     if (!user) {
@@ -39,9 +40,9 @@ export const handlers = [
     })
   }),
 
-  // Payment receipt handler
-  http.get('/payment-receipt/:paymentId', (req) => {
-    const { paymentId } = req.params
+  // 🔹 Payment receipt handler
+  http.get('/payment-receipt/:paymentId', ({ params }) => {
+    const { paymentId } = params
 
     for (const user of users) {
       const payment = (user.paymentHistory || []).find(
@@ -56,9 +57,9 @@ export const handlers = [
             items: [
               {
                 description: payment.description || 'Tuition Payment',
-                amount: payment.amount
-              }
-            ]
+                amount: payment.amount,
+              },
+            ],
           },
           studentInfo: user.studentInfo,
         })
@@ -68,17 +69,17 @@ export const handlers = [
     return new HttpResponse(null, { status: 404 })
   }),
 
-  // Payment processing handler
+  // 🔹 Process payment handler
   http.post('/process-payment', async ({ request }) => {
     const { slipNumber, amount, paymentMethod, paymentType } = await request.json()
-
     const user = users.find((u) => u.slipNumber === slipNumber)
 
     if (!user) {
       return new HttpResponse(null, { status: 404 })
     }
 
-    await new Promise(resolve => setTimeout(resolve, 1000)) // simulate delay
+    // simulate delay
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     const newPayment = {
       id: Date.now(),
@@ -90,17 +91,14 @@ export const handlers = [
       paymentType: paymentType || 'Tuition',
       status: 'completed',
       description: `${paymentMethod} - ${paymentType}`,
-      transactionId: `TXN${Date.now()}`
+      transactionId: `TXN${Date.now()}`,
     }
 
-    if (!user.paymentHistory) {
-      user.paymentHistory = []
-    }
-    user.paymentHistory.push(newPayment)
+    user.paymentHistory = [...(user.paymentHistory || []), newPayment]
 
-    const totalPaid = user.paymentHistory.reduce((sum, payment) => sum + payment.amount, 0)
-    const totalCourseCost = user.courses.reduce((sum, course) => sum + course.cost, 0)
-    const totalAdditionalFees = user.additionalFees.reduce((sum, fee) => sum + fee.amount, 0)
+    const totalPaid = user.paymentHistory.reduce((sum, p) => sum + p.amount, 0)
+    const totalCourseCost = (user.courses || []).reduce((sum, c) => sum + c.cost, 0)
+    const totalAdditionalFees = (user.additionalFees || []).reduce((sum, f) => sum + f.amount, 0)
     const totalDue = totalCourseCost + totalAdditionalFees
     const remainingBalance = Math.max(0, totalDue - totalPaid)
 
@@ -108,76 +106,74 @@ export const handlers = [
       totalDue,
       totalPaid,
       remainingBalance,
-      status: remainingBalance === 0 ? 'paid' : 'partial'
+      status: remainingBalance === 0 ? 'paid' : 'partial',
     }
 
     return HttpResponse.json({
       success: true,
       payment: newPayment,
       paymentStatus: user.paymentStatus,
-      message: 'Payment processed successfully'
+      message: 'Payment processed successfully',
     })
   }),
 
-  // Dashboard data handler
-  http.get('/dashboard/:slipNumber', (req) => {
-    const { slipNumber } = req.params
+  // 🔹 Dashboard data handler
+  http.get('/dashboard/:slipNumber', ({ params }) => {
+    const { slipNumber } = params
     const user = users.find((u) => u.slipNumber === slipNumber)
 
     if (!user) {
       return new HttpResponse(null, { status: 404 })
     }
 
-    const totalCourseCost = user.courses.reduce((sum, course) => sum + course.cost, 0)
-    const totalAdditionalFees = user.additionalFees.reduce((sum, fee) => sum + fee.amount, 0)
+    const totalCourseCost = (user.courses || []).reduce((sum, c) => sum + c.cost, 0)
+    const totalAdditionalFees = (user.additionalFees || []).reduce((sum, f) => sum + f.amount, 0)
     const totalDue = totalCourseCost + totalAdditionalFees
-    const totalPaid = user.paymentHistory ? user.paymentHistory.reduce((sum, payment) => sum + payment.amount, 0) : 0
+    const totalPaid = (user.paymentHistory || []).reduce((sum, p) => sum + p.amount, 0)
     const remainingBalance = Math.max(0, totalDue - totalPaid)
 
     return HttpResponse.json({
       studentInfo: user.studentInfo,
-      courses: user.courses,
-      additionalFees: user.additionalFees,
+      courses: user.courses || [],
+      additionalFees: user.additionalFees || [],
       paymentSummary: {
         totalDue,
         totalPaid,
         remainingBalance,
-        status: remainingBalance === 0 ? 'paid' : 'partial'
-      }
+        status: remainingBalance === 0 ? 'paid' : 'partial',
+      },
     })
   }),
 
-  // Logout handler
+  // 🔹 Logout handler
   http.post('/logout', async () => {
     return HttpResponse.json({
       success: true,
-      message: 'Logged out successfully'
+      message: 'Logged out successfully',
     })
   }),
 
-  // Validate token handler
+  // 🔹 Token validation handler
   http.get('/validate-token', async ({ request }) => {
     const authHeader = request.headers.get('Authorization')
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+    if (!authHeader?.startsWith('Bearer ')) {
       return new HttpResponse(null, { status: 401 })
     }
 
     const token = authHeader.substring(7)
     const user = users.find((u) => u.token === token)
 
-    if (user) {
-      return HttpResponse.json({
-        valid: true,
-        studentInfo: user.studentInfo
-      })
+    if (!user) {
+      return new HttpResponse(null, { status: 401 })
     }
 
-    return new HttpResponse(null, { status: 401 })
+    return HttpResponse.json({
+      valid: true,
+      studentInfo: user.studentInfo,
+    })
   }),
 
-  // ✅ Passthrough root requests so MSW doesn't warn
-  http.get('/', () => {
-    return passthrough()
-  })
+  // ✅ Passthrough root requests (avoid MSW warnings)
+  http.get('/', () => passthrough()),
 ]
