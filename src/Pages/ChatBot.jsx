@@ -15,20 +15,20 @@ export default function HelpChatbot() {
   // FAQ list
   const faqList = [
     {
-      q: "How do I add an expense?",
-      a: "➡ To add an expense, go to *Dashboard > Add Expense* and fill out the form.",
+      q: "How do I pay my tuition or fees?",
+      a: "💬 You can pay your tuition or fees directly from your dashboard, click the make payment button choose your payment method, and follow the instructions. Once your payment is successful, your balance will be updated automatically.",
     },
     {
       q: "Where can I view my transactions?",
-      a: "📊 You can view your transactions under *Dashboard > Transaction History*.",
+      a: "📊 You can view your transactions under Dashboard > View Payment History.",
     },
     {
-      q: "How do I generate a report?",
-      a: "📝 Reports can be generated in *Dashboard > Reports*.",
+      q: "How do I see my courses and fees breakdown?",
+      a: "📝 You can view your transactions under Dashboard > My Courses.",
     },
     {
-      q: "How do I set a budget?",
-      a: "💰 You can set a budget in *Dashboard > Budget Planner* and track your spending.",
+      q: "Can I export my payment history?",
+      a: "Yes, you can download your payment history from the Payment History section. Just click on the Download button and select your preferred format.",
     },
   ];
 
