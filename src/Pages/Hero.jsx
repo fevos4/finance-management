@@ -135,13 +135,23 @@ const Hero = () => {
               </form>
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-500">
-                  Demo credentials: Slip Number:{" "}
+                  Demo: Slip Number:{" "}
                   <span className="font-mono bg-gray-100 px-2 py-1 rounded">
                     123
                   </span>
                   , ID:{" "}
                   <span className="font-mono bg-gray-100 px-2 py-1 rounded">
                     456
+                  </span>
+                </p>
+                <p className="text-sm text-gray-500">
+                  Slip Number:{" "}
+                  <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                    789
+                  </span>
+                  , ID:{" "}
+                  <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                    101
                   </span>
                 </p>
               </div>
